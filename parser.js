@@ -25,7 +25,7 @@ var result = { tram : {}, trol: {} };
 
 var next = function () {
     if (files.length === 0) {
-        fs.writeFile('processed.json', 'var data = ' + JSON.stringify(result), function (err) {
+        fs.writeFile('html/data.json', 'var data = ' + JSON.stringify(result), function (err) {
             if (!err) {
                 console.log('Successfully written to processed.json');
             } else {

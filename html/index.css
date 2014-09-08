@@ -1,0 +1,172 @@
+html {
+    font: 20px 'PT Sans', sans-serif;
+}
+
+.sign {
+    margin-bottom: 40px;
+}
+.sign__left {
+    display: inline-block;
+    vertical-align: top;
+
+    width: 800px;
+}
+.sign__right {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.number {
+    font-size: 240%;
+    font-weight: bold;
+    display: inline-block;
+    padding: 10px 15px;
+
+    color: #fff;
+    background: red;
+}
+
+.direction {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.direction__title {
+    position: relative;
+    top: 8px;
+
+    font-size: 80%;
+}
+.direction__to {
+    font-size: 240%;
+    font-weight: bold;
+}
+
+
+.timetable {
+    margin-top: 20px;
+}
+.timetable + .timetable {
+    margin-top: 40px;
+}
+
+.timetable__header {
+    font-size: 110%;
+    font-weight: bold;
+
+    padding: 3px 0;
+
+    text-align: center;
+
+    color: #fff;
+    background: red;
+}
+
+.timetable__times {
+    font-size: 110%;
+
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+
+.timetable__times th {
+    padding: 7px 0;
+}
+.timetable__times th,
+.timetable__times td {
+    vertical-align: top;
+}
+.timetable__times th:nth-of-type(2n),
+.timetable__times td:nth-of-type(2n) {
+    background: rgba(255,0,0,0.05);
+}
+
+.timetable__times td span {
+    display: block;
+    margin: 0 3px;
+    padding: 0 5px;
+}
+
+.depot {
+    background: rgba(80,80,80,0.2);
+}
+
+.info {
+    margin-top: 20px;
+}
+
+
+.stops {
+    position: relative;
+    margin-left: 100px;
+}
+.stops:before {
+    position: absolute;
+    content: '';
+    height: 100%;
+    width: 3px;
+    left: -30px;
+    background: red;
+    border-radius: 2px;
+}
+.stops__key-stop {
+    font-weight: bold;
+}
+.stops__key-stop_middle {
+    position: relative;
+}
+.stops__key-stop_middle:before {
+    position: absolute;
+    left: -34px;
+    top: 50%;
+    margin-top: -2px;
+    content: '';
+    width: 12px;
+    height: 3px;
+    border-radius: 2px;
+    background: red;
+}
+.stops__union {
+    position: relative;
+}
+.stops__pass {
+    position: absolute;
+    bottom: 0;
+    left: -40px;
+    height: 100%;
+    width: 1em;
+
+    text-align: center;
+}
+.stops__pass-time {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    padding: 0 5px;
+    transform: translateX(-50%) translateY(-50%) rotate(-90deg);
+    transform-origin: 50% 50%;
+
+    white-space: nowrap;
+    background: white;
+}
+
+.time-mark {
+    font-size: 70%;
+
+    width: 250px;
+    margin-left: 70px;
+    margin-top: 10px;
+}
+
+
+
+.trol .number,
+.trol .timetable__header,
+.trol .stops:before,
+.trol .stops__key-stop_middle:before {
+    background: blue;
+}
+.trol .timetable__times th:nth-of-type(2n),
+.trol .timetable__times td:nth-of-type(2n) {
+    background: rgba(0,0,255,0.05);
+}
