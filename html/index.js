@@ -1,5 +1,4 @@
 $(function(){
-
     var signs = [];
 
     ['tram', 'trol'].map(function(type){
@@ -33,6 +32,21 @@ $(function(){
                         sign.find('.number').text(i);
                         sign.find('.direction__to').text(Object.keys(route)[rr]);
 
+                        var $stops = sign.find('.stops');
+                        $stops.html('');
+                        if (stops[type][i]) {
+                            var curr_stops = stops[type][i];
+
+                            if (curr_stops[0].indexOf(Object.keys(route)[rr]) > -1 ||
+                                curr_stops[curr_stops.length - 1].indexOf(Object.keys(route)[r]) > -1) {
+                                curr_stops = curr_stops.reverse();
+                            }
+
+                            curr_stops.map(function(stop){
+                                $stops.append($('<div></div>').html(stop));
+                            })
+                        }
+
                         var baseTable = sign.find('.timetable').eq(0).clone();
                         sign.find('.timetable').remove();
 
@@ -58,7 +72,9 @@ $(function(){
                                     var txt = j;
 
                                     if (/Д/.test(txt)) {
-                                        el.addClass('depot');
+                                        if ((type !== 'trol' || Object.keys(route)[rr] !== 'Коммунистическая')) {
+                                            el.addClass('depot');
+                                        }
                                         txt = txt.replace('Д', '');
                                     }
                                     t.push(el.html(txt));
