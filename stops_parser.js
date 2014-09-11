@@ -51,7 +51,7 @@ var processFile = function(file){
     conv = new Iconv('utf8', 'utf8');
     body = conv.convert(body).toString();
 
-    result[type][route] = [];
+    result[type][route] = {stops: [], length: '', depot: '', time: ''};
 
 
     jsdom.env(
@@ -64,11 +64,21 @@ var processFile = function(file){
             stops_html.unshift();
 
             stops_html.map(function(stop){
+                if (/Депо/.test(stop)) {
+                    var depot = $.trim(stop.replace('Депо:', '').replace(/[:\n\t,\.]/g, '').replace(/<\/?\w+\/?>/g,'').replace('&nbsp;', ' ')).split(' ');
+                    result[type][route].depot = depot;
+                }
+                if (/Длина/.test(stop)) {
+                    result[type][route].length = /(\d+\,?\s?\d*\sкм)/.exec(stop)[1]
+                }
+                if (/Время/.test(stop)) {
+                    result[type][route].time = /(\d+\sмин)/.exec(stop)[1]
+                }
+
                 if (/\d+\)/.test(stop)) {
-                    result[type][route].push($.trim(stop.replace(/[:\n\t,\.]/g, '').replace(/<\/?\w+\/?>/,'').replace('&nbsp;', ' ')));
+                    result[type][route].stops.push($.trim(stop.replace(/[:\n\t,\.]/g, '').replace(/<\/?\w+\/?>/,'').replace('&nbsp;', ' ')));
                 }
             });
-            console.log(result[type][route]);
             next();
          }
     );
