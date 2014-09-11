@@ -1,0 +1,17 @@
+{
+    "author" : "Oleg Mokhov <o.mokhov@ya.ru>",
+    "description" : "Дизайн остановок ЕТТУ",
+    "name" : "ettu-signs-creator",
+    "private": true,
+    "version" : "0.0.1",
+    "dependencies": {
+        "buffer": "*",
+        "iconv": "*",
+        "xml2js": "*",
+        "jsdom": "*"
+    },
+    "engines": {
+        "node": ">= 0.10.0"
+    }
+}
+
