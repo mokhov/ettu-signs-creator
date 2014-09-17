@@ -25,6 +25,7 @@ var result = { tram : {}, trol: {} };
 
 var next = function () {
     if (files.length === 0) {
+        result = postParse(result);
         fs.writeFile('html/data.js', 'var data = ' + JSON.stringify(result), function (err) {
             if (!err) {
                 console.log('Successfully written to processed.json');
@@ -191,6 +192,10 @@ var endpoint_replacers = {
 };
 
 var processFile = function(file){
+    if (!/^(tram|trol)/.test(file)) {
+        next();
+        return;
+    }
     console.log('processing ' + file);
     var type = file.split('_')[0];
 
@@ -261,4 +266,54 @@ var processFile = function(file){
     );
 };
 
+var postParse = function (result) {
+    Object.keys(result).map(function(type){
+        Object.keys(result[type]).map(function(number){
+            Object.keys(result[type][number]).map(function(stop){
+                var current = result[type][number][stop];
+
+                if (!current.saturday || !current.sunday) {
+                    return;
+                }
+
+                var isEqual = compareSchedules(current.saturday, current.sunday);
+
+                if (isEqual) {
+                    delete current.sunday;
+                    var isEqualAll = compareSchedules(current.saturday, current.base);
+
+                    if (isEqualAll) {
+                        delete current.base;
+                        current.all = current.saturday;
+                    } else {
+                        current.dayoffs = current.saturday;
+                    }
+                    delete current.saturday;
+                }
+            })
+        })
+    })
+    return result;
+}
+
+var compareSchedules = function (schedule1, schedule2) {
+    var isEqual = true;
+    Object.keys(schedule1).map(function(hour){
+        if (!schedule2[hour]) {
+            isEqual = false;
+            return;
+        }
+
+        schedule1[hour].map(function(min){
+            if (schedule2[hour].indexOf(min) === -1) {
+                isEqual = false;
+                return;
+            }
+        })
+    })
+
+    return isEqual;
+}
+
 next();
+

@@ -3,20 +3,6 @@ var Buffer = require('buffer').Buffer;
 var Iconv  = require('iconv').Iconv;
 var parseString = require('xml2js').parseString;
 var jsdom = require("jsdom");
-
-
-//if (!file) {
-    //console.error('no file given');
-//}
-
-//var iata = file.split('/')[0] || 'svx';
-//var airport = {
-    //'svx': 'Екатеринбург',
-    //'pee': 'Пермь',
-    //'kuf': 'Самара',
-    //'goj': 'Нижний Новгород'
-//}[iata];
-
 var xml2js = require('xml2js');
 var fs = require('fs');
 
@@ -39,6 +25,8 @@ var next = function () {
 
 var result = { tram: {}, trol: {} };
 
+var trimmer = function (s) {
+}
 
 var processFile = function(file){
     console.log('processing ' + file);
@@ -51,33 +39,53 @@ var processFile = function(file){
     conv = new Iconv('utf8', 'utf8');
     body = conv.convert(body).toString();
 
-    result[type][route] = {stops: [], length: '', depot: '', time: ''};
-
 
     jsdom.env(
       body,
       ["http://code.jquery.com/jquery.js"],
       function (errors, window) {
-          var $ = window.$;
+            var $ = window.$;
+
+            var processStop = function (s){
+                // Первый проход – удаляем пробелы, табуляцию и теги
+                var s = $.trim(s
+                        .replace(/[:\n\t,\.]/g, '')
+                        .replace(/<\/?\w+\/?>/,'')
+                        .replace('&nbsp;', ' '));
+
+                // Второй проход - коррекция сокращений слов, удаляем "n)" в начале
+                return s.replace(/\d+\)\s?/, '')
+                        .replace(/^ул/, 'улица')
+                        .replace(/^пл/, 'площадь')
+                        .replace(/^пр/, 'проспект');
+            }
+
+
 
             var stops_html = $('#main_block').find('table').eq(0).html().split('\n');
             stops_html.unshift();
 
+            var parsed = {stops: []};
+
             stops_html.map(function(stop){
+
                 if (/Депо/.test(stop)) {
                     var depot = $.trim(stop.replace('Депо:', '').replace(/[:\n\t,\.]/g, '').replace(/<\/?\w+\/?>/g,'').replace('&nbsp;', ' ')).split(' ');
-                    result[type][route].depot = depot;
+                    parsed.depot = depot;
                 }
+                console.log(parsed);
                 if (/Длина/.test(stop)) {
-                    result[type][route].length = /(\d+\,?\s?\d*\sкм)/.exec(stop)[1]
+                    parsed.length = /(\d+\,?\s?\d*\sкм)/.exec(stop)[1]
                 }
                 if (/Время/.test(stop)) {
-                    result[type][route].time = /(\d+\sмин)/.exec(stop)[1]
+                    parsed.time = /(\d+\sмин)/.exec(stop)[1]
                 }
 
                 if (/\d+\)/.test(stop)) {
-                    result[type][route].stops.push($.trim(stop.replace(/[:\n\t,\.]/g, '').replace(/<\/?\w+\/?>/,'').replace('&nbsp;', ' ')));
+                    parsed.stops.push(processStop(stop));
                 }
+
+                result[type][route] = parsed;
             });
             next();
          }

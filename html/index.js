@@ -1,6 +1,23 @@
 $(function(){
     var signs = [];
 
+    var mins = function(a) {
+        var o = a % 10;
+        if (o === 0 || o > 4 || a % 100 >= 11 && a % 100 <= 15) {
+            var s = ' минут';
+        }
+        else if (o > 1 && o < 5) {
+            var s = ' минуты';
+        } else {
+            s = ' минута';
+        }
+        return a + s;
+    };
+
+    var trim_stop = function (stop) {
+        return  stop.replace(/\d+\)\s?/, '').replace(/^ул/, 'улица').replace(/^пл/, 'площадь').replace(/^пр/, 'проспект');
+    };
+
     ['tram', 'trol'].map(function(type){
             var numbers = Object.keys(data[type]);
             if (type === 'trol') {
@@ -34,29 +51,57 @@ $(function(){
 
                         var $stops = sign.find('.stops');
                         $stops.html('');
-                        if (stops[type][i]) {
-                            var curr_stops = stops[type][i];
+
+                        var union = $('<div class="stops__union"></div>');
+
+                        var stops_info = stops[type][i];
+                        if (i === 'А') {
+                            var stops_info = stops[type][31];
+                        }
+                        if (stops_info) {
+                            var curr_stops = stops_info.stops;
+                            var stops_time = parseInt(stops_info.time);
+                            var stops_len = curr_stops.length;
+
+                            if (trim_stop(curr_stops[0]) !== trim_stop(curr_stops[stops_len - 1])) {
+                                stops_time = Math.round(stops_time/2);
+                            }
+                            stops_time = mins(stops_time);
 
                             if (curr_stops[0].indexOf(Object.keys(route)[rr]) > -1 ||
                                 curr_stops[curr_stops.length - 1].indexOf(Object.keys(route)[r]) > -1) {
                                 curr_stops = curr_stops.reverse();
                             }
 
-                            curr_stops.map(function(stop){
-                                $stops.append($('<div></div>').html(stop));
+                            curr_stops.map(function(stop, stopI){
+                                var stop = trim_stop(stop);
+
+                                if (stopI === 0) {
+                                    $stops.append($('<div class="stops__pass"><div class="stops__pass-time">' + stops_time +'</div></div>'));
+                                    $stops.append($('<div class="stops__key-stop"></div>').html(stop));
+                                } else if (stopI === stops_len -1 ) {
+                                    $stops.append(union);
+                                    $stops.append($('<div class="stops__key-stop"></div>').html(stop));
+                                } else {
+                                    union.append($('<div></div>').html(stop));
+                                }
                             })
+                            //$stops.append(stops_info.depot.join(', '));
                         }
 
                         var baseTable = sign.find('.timetable').eq(0).clone();
                         sign.find('.timetable').remove();
 
-                        ['base', 'saturday', 'sunday'].map(function(key){
+                        var types = Object.keys(route[Object.keys(route)[r]]);
+
+                        types.map(function(key){
                             if (!route[Object.keys(route)[r]][key]) {
                                 return;
                             }
                             var table = baseTable.clone();
 
-                            table.find('.timetable__header').text('Отправление от остановки «' + Object.keys(route)[r] + "»" + (key === 'saturday' && ' (по субботам)' || key === 'sunday' && ' (по воскресеньям)' || ''));
+                            var extra_header = (key === 'base' && ' (будни)' || key === 'saturday' && ' (по субботам)' || key === 'sunday' && ' (по воскресеньям)' || key === 'dayoffs' && ' (выходные дни)' || '')
+                            table.find('.timetable__header').text('Отправление от остановки «' + Object.keys(route)[r] + "»" + extra_header);
 
                             var headers = table.find('.timetable__times tr').eq(0);
                             headers.html('');
